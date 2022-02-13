@@ -1,4 +1,6 @@
-const url = 'http://localhost:3000/'
+const url = localStorage.foreign_storage_dev
+  ? 'http://localhost:3000/'
+  : 'https://foreign-storage.herokuapp.com/'
 const foreignStorage = {setItem, getItem, removeItem, clear,
   getLength, listKeys}
 
