@@ -64,7 +64,8 @@ await foreignStorage.clear()
 ```
 
 Removes all key/value pairs. Yours, everyone's. Returns true or throws an error.
-THIS WILL SIGNIFICANTLY LOWER YOUR CARMA IF SOMEBODY'S DATA IS LOST IN THE PROCESS AND HE OR SHE WASN'T ACTUALLY READY TO LOOSE IT!!!
+
+CAUTION!!! THIS WILL SIGNIFICANTLY LOWER YOUR CARMA IF SOMEBODY'S DATA IS LOST IN THE PROCESS AND HE OR SHE WASN'T ACTUALLY READY TO LOOSE IT!
 
 If you're going to use `foreignStorage`, be nice and play carefully!
 
