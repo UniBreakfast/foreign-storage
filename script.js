@@ -1,28 +1,33 @@
 const url = localStorage.foreign_storage_dev
   ? 'http://localhost:3000/'
   : 'https://foreign-storage.herokuapp.com/'
-const foreignStorage = {setItem, getItem, removeItem, clear,
-  getLength, listKeys}
+const foreignStorage = {
+  setItem, getItem, removeItem, clear,
+  getLength, listKeys
+}
 
 async function setItem(key, str) {
   if (arguments.length < 2 || typeof key != 'string' || typeof str != 'string') {
     throw new Error('Exactly two arguments of type string required')
   }
-  const answer = await fetch(url + 'setItem', {method: 'POST', headers: {key}, body: str})
+  const options = { method: 'POST', headers: { key }, body: str }
+  const answer = await fetch(url + 'setItem', options)
     .then(resp => resp.json())
 
   if (answer.success) return true
-  throw new Error(answer.errors?.join('; ') || answer)
+  if (answer.errors) throw new Error(answer.errors?.join('; ') || answer)
 }
 
 async function getItem(key) {
   if (arguments.length < 1 || typeof key != 'string') {
     throw new Error('One argument of type string required')
   }
-  const answer = await fetch(url + 'getItem', {method: 'GET', headers: {key}})
+  const options = { method: 'GET', headers: { key } }
+  const answer = await fetch(url + 'getItem', options)
     .then(resp => resp.json())
 
   if (answer.errors?.[0] == 'undefined') return undefined
+  if (answer.errors) throw new Error(answer.errors?.join('; ') || answer)
   return answer
 }
 
@@ -30,21 +35,34 @@ async function removeItem(key) {
   if (arguments.length < 1 || typeof key != 'string') {
     throw new Error('One argument of type string required')
   }
-  return fetch(url + 'removeItem', {method: 'DELETE', headers: {key}})
+  const options = { method: 'DELETE', headers: { key } }
+  const answer = await fetch(url + 'removeItem', options)
     .then(resp => resp.json())
+
+  if (answer.success) return true
+  if (answer.errors) throw new Error(answer.errors?.join('; ') || answer)
 }
 
 async function clear() {
-  return fetch(url + 'clear', {method: 'DELETE'})
+  const answer = await fetch(url + 'clear', { method: 'DELETE' })
     .then(resp => resp.json())
+
+  if (answer.success) return true
+  if (answer.errors) throw new Error(answer.errors?.join('; ') || answer)
 }
 
 async function getLength() {
-  return fetch(url + 'getLength')
+  const answer = await fetch(url + 'getLength')
     .then(resp => resp.json())
+
+  if (answer.errors) throw new Error(answer.errors?.join('; ') || answer)
+  return answer
 }
 
 async function listKeys() {
-  return fetch(url + 'listKeys')
+  const answer = await fetch(url + 'listKeys')
     .then(resp => resp.json())
+
+  if (answer.errors) throw new Error(answer.errors?.join('; ') || answer)
+  return answer
 }
