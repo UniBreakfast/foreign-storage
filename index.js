@@ -1,4 +1,5 @@
-const { GoogleSpreadsheet } =
+try {
+  const { GoogleSpreadsheet } =
   require('google-spreadsheet');
 try { require('./env') } catch {}
 
@@ -140,3 +141,7 @@ const rawMark = { raw: true };
 //     Object.entries(obj).forEach(([key, value]) =>
 //       globalThis[key] = value))
 // }
+
+} catch (error) {
+  console.log(JSON.stringify(error))
+}
