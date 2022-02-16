@@ -19,29 +19,33 @@ async function handleRequest(req, resp) {
   resp.setHeader('Access-Control-Allow-Origin', '*')
   resp.setHeader('Access-Control-Allow-Headers', 'POST, GET, DELETE, OPTIONS, key')
   resp.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, OPTIONS')
+  try {
+    const { method, url } = req
 
-  const { method, url } = req
+    const route = router[url.slice(1)]
 
-  const route = router[url.slice(1)]
-
-  if (!route) {
-    var answer = {errors: ['wrong URL ' + url], correctURLs: signPost}
-  } else if (route.method != method) {
-    var answer =
-      {errors: [`wrong method ${method} for ${url}, should be ${route.method}`]}
-  } else {
-    if (route.length > 0) {
-      var {key} = req.headers
+    if (!route) {
+      var answer = {errors: ['wrong URL ' + url], correctURLs: signPost}
+    } else if (route.method != method) {
+      var answer =
+        {errors: [`wrong method ${method} for ${url}, should be ${route.method}`]}
+    } else {
+      if (route.length > 0) {
+        var {key} = req.headers
+      }
+      if (route.length > 1) {
+        const chunks = []
+        for await (const chunk of req) chunks.push(chunk)
+        var str = Buffer.concat(chunks).toString()
+      }
+      var answer = await route(key, str).catch(err => ({errors: [err]}))
     }
-    if (route.length > 1) {
-      const chunks = []
-      for await (const chunk of req) chunks.push(chunk)
-      var str = Buffer.concat(chunks).toString()
-    }
-    var answer = await route(key, str).catch(err => ({errors: [err]}))
+
+    resp.end(JSON.stringify(answer))
+    } catch (err) {
+    console.log(JSON.stringify(err))
+    resp.end('oops!')
   }
-
-  resp.end(JSON.stringify(answer))
 }
 
 const router = {setItem, getItem, removeItem, clear,
