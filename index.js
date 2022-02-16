@@ -1,5 +1,4 @@
-try {
-  const { GoogleSpreadsheet } =
+const { GoogleSpreadsheet } =
   require('google-spreadsheet');
 try { require('./env') } catch {}
 
@@ -20,33 +19,29 @@ async function handleRequest(req, resp) {
   resp.setHeader('Access-Control-Allow-Origin', '*')
   resp.setHeader('Access-Control-Allow-Headers', 'POST, GET, DELETE, OPTIONS, key')
   resp.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, OPTIONS')
-  try {
-    const { method, url } = req
 
-    const route = router[url.slice(1)]
+  const { method, url } = req
 
-    if (!route) {
-      var answer = {errors: ['wrong URL ' + url], correctURLs: signPost}
-    } else if (route.method != method) {
-      var answer =
-        {errors: [`wrong method ${method} for ${url}, should be ${route.method}`]}
-    } else {
-      if (route.length > 0) {
-        var {key} = req.headers
-      }
-      if (route.length > 1) {
-        const chunks = []
-        for await (const chunk of req) chunks.push(chunk)
-        var str = Buffer.concat(chunks).toString()
-      }
-      var answer = await route(key, str).catch(err => ({errors: [err]}))
+  const route = router[url.slice(1)]
+
+  if (!route) {
+    var answer = {errors: ['wrong URL ' + url], correctURLs: signPost}
+  } else if (route.method != method) {
+    var answer =
+      {errors: [`wrong method ${method} for ${url}, should be ${route.method}`]}
+  } else {
+    if (route.length > 0) {
+      var {key} = req.headers
     }
-
-    resp.end(JSON.stringify(answer))
-    } catch (err) {
-    console.log(JSON.stringify(err))
-    resp.end('oops!')
+    if (route.length > 1) {
+      const chunks = []
+      for await (const chunk of req) chunks.push(chunk)
+      var str = Buffer.concat(chunks).toString()
+    }
+    var answer = await route(key, str).catch(err => ({errors: [err]}))
   }
+
+  resp.end(JSON.stringify(answer))
 }
 
 const router = {setItem, getItem, removeItem, clear,
@@ -97,7 +92,7 @@ getLength.method = 'GET'
 async function getLength() {
   const sheet = await promisedSheet
   const cellDataRanges = await sheet.getCellsInRange('A2:A')
-  return cellDataRanges.length
+  return cellDataRanges?.length ?? 0
 }
 
 listKeys.method = 'GET'
@@ -141,7 +136,3 @@ const rawMark = { raw: true };
 //     Object.entries(obj).forEach(([key, value]) =>
 //       globalThis[key] = value))
 // }
-
-} catch (error) {
-  console.log(JSON.stringify(error))
-}
